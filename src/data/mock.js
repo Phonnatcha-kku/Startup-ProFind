@@ -87,10 +87,10 @@ const P = (id, clinicId, title, treatment, originalPrice, price, type, extra = {
 })
 
 export const promotions = [
-  P('p1', 'c1', 'Botox 100 Units', 'Botox', 4500, 2999, 'Flash Deal', { sponsored: true, brand: 'Botulax (Korea)', duration: dur('20–30'), views: 2840, clicks: 426, bookings: 64 }),
+  P('p1', 'c1', 'Botox 100 Units', 'Botox', 4500, 2999, 'Flash Deal', { brand: 'Botulax (Korea)', duration: dur('20–30'), views: 2840, clicks: 426, bookings: 64 }),
   P('p2', 'c1', 'HydraFacial Signature', 'Facial', 3500, 1990, 'New Customer'),
   P('p3', 'c1', 'Ultherapy 300 Lines', 'Skin', 32000, 19900, 'Discount', { duration: dur('60–90') }),
-  P('p4', 'c2', 'Botox Jawline 50 Units', 'Botox', 3900, 2490, 'Discount', { sponsored: true }),
+  P('p4', 'c2', 'Botox Jawline 50 Units', 'Botox', 3900, 2490, 'Discount'),
   P('p5', 'c2', 'Pico Laser Full Face', 'Laser', 5900, 3490, 'Bundle'),
   P('p6', 'c3', 'Filler Restylane 1cc', 'Filler', 12900, 8900, 'Discount'),
   P('p7', 'c3', 'Botox 100 Units (Allergan)', 'Botox', 6500, 4290, 'Discount', { brand: 'Allergan (USA)' }),
@@ -207,10 +207,18 @@ export const platformTrend = ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'].map((m, 
   clinics: [8, 12, 17, 21, 31, 39][i],
 }))
 
-// Monthly ProFind revenue by source (฿), matches the business model.
+// Monthly ProFind revenue by source (฿), from the pitch deck's revenue table.
 export const revenueMix = [
-  { name: { en: 'Subscription', th: 'ค่าสมาชิกรายเดือน' }, value: 76800, note: { en: '128 clinics × ฿600/mo avg', th: '128 คลินิก × เฉลี่ย ฿600/เดือน' } },
-  { name: { en: 'CPC', th: 'ค่าคลิก (CPC)' }, value: 38400, note: { en: '12,800 clicks × ฿3', th: '12,800 คลิก × ฿3' } },
-  { name: { en: 'Ad packages', th: 'แพ็กเกจโฆษณา' }, value: 62000, note: { en: 'Sponsored ฿2,000/wk · Featured ฿6,000/mo', th: 'Sponsored ฿2,000/สัปดาห์ · Featured ฿6,000/เดือน' } },
-  { name: { en: 'Commission', th: 'ค่าคอมมิชชั่น' }, value: 36800, note: { en: '8% of booking GMV', th: '8% ของมูลค่าการจอง (GMV)' } },
+  { name: { en: 'Commission', th: 'ค่าคอมมิชชั่น' }, value: 195000, note: { en: 'Required · 8% of ฿2,437,500 booking GMV', th: 'บังคับ · 8% ของยอดจอง ฿2,437,500' } },
+  { name: { en: 'Ad packages', th: 'แพ็กเกจโฆษณา' }, value: 24000, note: { en: 'Optional · Sponsored ฿2,000/wk × 3 · Featured ฿6,000/mo × 3', th: 'ทางเลือก · Sponsored ฿2,000/สัปดาห์ × 3 · Featured ฿6,000/เดือน × 3' } },
+  { name: { en: 'CPC', th: 'ค่าคลิก (CPC)' }, value: 15000, note: { en: 'Optional · 3,000 clicks × ฿5', th: 'ทางเลือก · 3,000 คลิก × ฿5' } },
+  { name: { en: 'Subscription', th: 'ค่าสมาชิกรายเดือน' }, value: 11970, note: { en: 'Required · 30 clinics × ฿399/mo', th: 'บังคับ · 30 คลินิก × ฿399/เดือน' } },
+]
+
+// Seed ad campaigns, dated relative to today so the demo always has one running and one finished.
+const daysAgo = n => new Date(Date.now() - n * 864e5).toISOString().slice(0, 10)
+export const campaigns = [
+  { id: 'cp1', promoId: 'p1', pkg: 'Sponsored Listing', area: 5, days: 7, budget: 2000, start: daysAgo(2) },
+  { id: 'cp2', promoId: 'p4', pkg: 'CPC', area: 5, days: 14, budget: 1500, start: daysAgo(3) },
+  { id: 'cp0', promoId: 'p2', pkg: 'Sponsored Listing', area: 5, days: 7, budget: 2000, start: daysAgo(20) },
 ]

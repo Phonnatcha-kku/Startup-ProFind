@@ -61,7 +61,7 @@ export function Dashboard() {
           ))}
         </div>
       </Card>
-      <PitchNote className="mt-6" title={t('Pitch: ProFind revenue', 'นำเสนอ: รายได้ของ ProFind')}>{t('Subscription + CPC + Advertising + Commission — four revenue lines from one marketplace. Admin controls trust: every clinic is verified and every promotion moderated before it goes live.', 'ค่าสมาชิก + CPC + โฆษณา + ค่าคอมมิชชั่น — รายได้ 4 ช่องทางจากแพลตฟอร์มเดียว แอดมินควบคุมความน่าเชื่อถือ: ทุกคลินิกต้องยืนยันตัวตน และทุกโปรโมชั่นต้องผ่านการตรวจสอบก่อนเผยแพร่')}</PitchNote>
+      <PitchNote className="mt-6" title={t('Pitch: ProFind revenue', 'นำเสนอ: รายได้ของ ProFind')}>{t('Two required lines (Subscription ฿399/mo + 8% Commission) plus two optional ones clinics buy to rank higher (Ad packages, CPC ฿5/click). Admin controls trust: every clinic is verified and every promotion moderated before it goes live.', 'รายได้หลักที่ทุกคลินิกจ่าย (ค่าสมาชิก ฿399/เดือน + ค่าคอมมิชชั่น 8%) และรายได้เสริมจากคลินิกที่อยากขึ้นอันดับต้น (แพ็กเกจโฆษณา, CPC คลิกละ ฿5) แอดมินควบคุมความน่าเชื่อถือ: ทุกคลินิกต้องยืนยันตัวตน และทุกโปรโมชั่นต้องผ่านการตรวจสอบก่อนเผยแพร่')}</PitchNote>
     </Page>
   )
 }

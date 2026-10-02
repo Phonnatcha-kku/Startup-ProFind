@@ -7,7 +7,7 @@ import { KpiCard, Card, Button, StatusBadge, Tabs, Modal, EmptyState, Img, Field
 import { TrendChart, BarsChart } from '../components/charts'
 import { PromotionCard, ClinicCard } from '../components/cards'
 import { clinicTrend, CATEGORIES, IMG } from '../data/mock'
-import { baht, fmtDate, discountPct, campaignEstimate, COMMISSION } from '../utils/logic'
+import { baht, fmtDate, discountPct, campaignEstimate, campaignEnd, isLive, COMMISSION, SUBSCRIPTION, CPC } from '../utils/logic'
 
 // [dataKey, English, Thai]
 const METRICS = [['views', 'Views', 'ยอดเข้าชม'], ['clicks', 'Clicks', 'คลิก'], ['bookings', 'Bookings', 'การจอง'], ['revenue', 'Revenue', 'รายได้']]
@@ -17,7 +17,8 @@ function useClinic() {
   const bookings = s.bookings.filter(b => b.clinicId === MY_CLINIC)
   const promos = s.promotions.filter(p => p.clinicId === MY_CLINIC)
   const fresh = bookings.filter(b => b.isNew)
-  return { ...s, clinic: s.clinicById(MY_CLINIC), bookings, promos, fresh }
+  const campaigns = s.campaigns.filter(c => promos.some(p => p.id === c.promoId))
+  return { ...s, clinic: s.clinicById(MY_CLINIC), bookings, promos, fresh, campaigns }
 }
 
 // Single-measure trend with a metric switcher. `data` rows carry a bilingual `label`.
@@ -37,7 +38,8 @@ export function MetricTrend({ data, metrics, initial = metrics[0][0], period }) 
 export function Dashboard() {
   const { clinic, bookings, promos, fresh, campaigns, setBookingStatus, toast, t } = useClinic()
   const pending = bookings.filter(b => b.status === 'Pending' || b.isNew).slice(0, 4)
-  const running = campaigns.filter(c => c.status === 'Running')
+  const running = campaigns.filter(c => isLive(c))
+  const ads = running.filter(c => c.pkg !== 'CPC'), cpc = running.filter(c => c.pkg === 'CPC')
   const views = promos.reduce((a, p) => a + p.views, 0)
   return (
     <Page>
@@ -61,14 +63,16 @@ export function Dashboard() {
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
         <Card title={t('Your ProFind plan', 'แพ็กเกจ ProFind ของคุณ')}>
           <div className="space-y-3 text-sm">
-            <PlanRow icon={Crown} title={t('Pro Subscription', 'สมาชิก Pro')} sub={t('Unlimited promotions · analytics', 'ลงโปรโมชั่นไม่จำกัด · ดูสถิติ')} value={t('฿990 / mo', '฿990 / เดือน')} />
-            <PlanRow icon={Megaphone} title={t(`${running.length} Sponsored campaign${running.length !== 1 ? 's' : ''} running`, `แคมเปญโปรโมตที่กำลังแสดง ${running.length} รายการ`)} sub={t('Top-of-search placement', 'แสดงบนสุดของผลการค้นหา')} value={baht(running.reduce((a, c) => a + c.budget, 0))} />
-            <PlanRow icon={MousePointerClick} title={t('Pay-per-click', 'จ่ายต่อคลิก (CPC)')} sub={t('426 clicks this month × ฿3', '426 คลิกเดือนนี้ × ฿3')} value="฿1,278" />
+            <div className="text-xs font-bold uppercase tracking-wide text-sub">{t('Required', 'ค่าบริการหลัก (บังคับ)')}</div>
+            <PlanRow icon={Crown} title={t('Subscription', 'ค่าสมาชิก')} sub={t('Unlimited promotions · analytics', 'ลงโปรโมชั่นไม่จำกัด · ดูสถิติ')} value={t(`${baht(SUBSCRIPTION)} / mo`, `${baht(SUBSCRIPTION)} / เดือน`)} />
             <PlanRow icon={Receipt} title={t('Booking commission', 'ค่าคอมมิชชั่นการจอง')} sub={t(`${COMMISSION * 100}% of booked value`, `${COMMISSION * 100}% ของมูลค่าการจอง`)} value="฿3,664" />
+            <div className="border-t border-line pt-3 text-xs font-bold uppercase tracking-wide text-sub">{t('Optional · rank higher in search', 'ทางเลือก · ขึ้นอันดับต้นในการค้นหา')}</div>
+            <PlanRow icon={Megaphone} title={t('Ad package', 'แพ็กเกจโฆษณา')} sub={ads.length ? t(`${ads.length} running · ends when the time bought is up`, `กำลังแสดง ${ads.length} รายการ · หมดตามระยะเวลาที่ซื้อ`) : t('Not used', 'ไม่ได้ใช้')} value={ads.length ? baht(ads.reduce((a, c) => a + c.budget, 0)) : '—'} />
+            <PlanRow icon={MousePointerClick} title={t('Pay-per-click', 'จ่ายต่อคลิก (CPC)')} sub={cpc.length ? t(`${cpc.length} running · ${baht(CPC)} per click`, `กำลังแสดง ${cpc.length} รายการ · คลิกละ ${baht(CPC)}`) : t('Not used', 'ไม่ได้ใช้')} value={cpc.length ? '~' + baht(cpc.reduce((a, c) => a + c.budget, 0)) : '—'} />
           </div>
           <Button to="/clinic/advertising" variant="soft" className="mt-4 w-full"><Megaphone className="size-4" />{t('Boost visibility', 'เพิ่มการมองเห็น')}</Button>
         </Card>
-        <PitchNote title={t('Pitch: clinic side', 'นำเสนอ: ฝั่งคลินิก')}>{t("Clinics list promotions, receive bookings and buy Sponsored placement — every ProFind revenue line (Subscription + CPC + Advertising + Commission) shows up right here in the clinic's own plan.", 'คลินิกสามารถลงโปรโมชั่น รับการจอง และซื้อตำแหน่งโปรโมต — รายได้ทุกช่องทางของ ProFind (ค่าสมาชิก + CPC + โฆษณา + ค่าคอมมิชชั่น) แสดงอยู่ในแพ็กเกจของคลินิกตรงนี้')}</PitchNote>
+        <PitchNote title={t('Pitch: clinic side', 'นำเสนอ: ฝั่งคลินิก')}>{t(`Every clinic pays only ${baht(SUBSCRIPTION)}/month + ${COMMISSION * 100}% commission on bookings. Ad packages and CPC are optional for clinics that want a top spot — without them, ranking is by relevance only.`, `คลินิกจ่ายแค่ค่าสมาชิก ${baht(SUBSCRIPTION)}/เดือน + ค่าคอมมิชชั่น ${COMMISSION * 100}% เมื่อมีการจอง ส่วนแพ็กเกจโฆษณาและ CPC เป็นทางเลือกสำหรับคลินิกที่อยากขึ้นอันดับต้น — ถ้าไม่ซื้อ อันดับจะขึ้นกับความเกี่ยวข้องเท่านั้น`)}</PitchNote>
       </div>
     </Page>
   )
@@ -353,6 +357,8 @@ const PACKAGES = [
     perks: [['Top of search results for your treatment', 'แสดงบนสุดของผลการค้นหาหัตถการของคุณ'], ['“Sponsored” label — max 2 slots per search', 'มีป้าย “โปรโมต” — สูงสุด 2 ตำแหน่งต่อการค้นหา'], ['Highlighted map pin', 'หมุดบนแผนที่แบบเด่น']] },
   { id: 'Featured Clinic', price: 6000, per: ['month', 'เดือน'], icon: Crown, unitDays: 30, best: true,
     perks: [['Homepage “Clinics near you” feature', 'แสดงในหัวข้อ “คลินิกใกล้คุณ” บนหน้าแรก'], ['Sponsored Listing included', 'รวม Sponsored Listing'], ['Priority in push notifications', 'ได้รับความสำคัญในการแจ้งเตือน']] },
+  { id: 'CPC', price: CPC, per: ['click', 'คลิก'], icon: MousePointerClick, unitDays: 7, cpc: true,
+    perks: [['Same top-of-search “Sponsored” slot', 'ได้ตำแหน่ง “โปรโมต” บนสุดเหมือน Sponsored Listing'], ['Pay only when someone clicks', 'จ่ายเฉพาะเมื่อมีคนกดเข้าดู'], ['Stops automatically when the period ends', 'หยุดอัตโนมัติเมื่อครบระยะเวลา']] },
 ]
 
 export function Advertising() {
@@ -362,14 +368,16 @@ export function Advertising() {
   const [c, setC] = useState({ promoId: active.find(p => !p.sponsored)?.id || active[0]?.id, area: 5, days: 7 })
   const selected = PACKAGES.find(p => p.id === pkg)
   const units = Math.ceil(c.days / (selected?.unitDays || 7))
-  const budget = selected ? units * selected.price : 0
-  const est = useMemo(() => campaignEstimate(budget, c.days, c.area), [budget, c.days, c.area])
+  // CPC gets the same slot as a Sponsored Listing, so estimate on that spend, then bill per click.
+  const base = selected ? units * (selected.cpc ? PACKAGES[0].price : selected.price) : 0
+  const est = useMemo(() => campaignEstimate(base, c.days, c.area), [base, c.days, c.area])
+  const budget = selected?.cpc ? est.clicks * CPC : base
   const promo = promoById(c.promoId)
   const launch = () => { launchCampaign({ ...c, pkg, budget }); toast(t('Campaign launched — now Sponsored in search', 'เริ่มแคมเปญแล้ว — แสดงเป็นโปรโมตในผลการค้นหา')); setPkg(null) }
   return (
     <Page>
       <PageHeader title={t('Advertising Center', 'ศูนย์โฆษณา')} sub={t('Pay to be seen first by people already searching for your treatments.', 'ให้ลูกค้าที่กำลังค้นหาหัตถการของคุณเห็นคุณเป็นอันดับแรก')} />
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-3">
         {PACKAGES.map(p => (
           <div key={p.id} className={cx('relative rounded-3xl border-2 bg-white p-6', p.best ? 'border-brand-600' : 'border-line')}>
             {p.best && <span className="absolute -top-3 left-6 rounded-full bg-brand-600 px-3 py-0.5 text-xs font-bold text-ink">{t('Best value', 'คุ้มค่าที่สุด')}</span>}
@@ -381,7 +389,7 @@ export function Advertising() {
         ))}
       </div>
       <div className="mt-4 flex items-center gap-3 rounded-2xl border border-line bg-white p-4 text-sm">
-        <MousePointerClick className="size-5 text-brand-700" /><div className="flex-1">{t(<><b>Pay-per-click (CPC)</b> — always on with your subscription. ฿3 per click on your promotions, billed monthly.</>, <><b>จ่ายต่อคลิก (CPC)</b> — เปิดใช้งานอัตโนมัติพร้อมแพ็กเกจสมาชิก คลิกละ ฿3 เรียกเก็บรายเดือน</>)}</div>
+        <Target className="size-5 text-brand-700" /><div className="flex-1">{t(<><b>No ads? That's fine.</b> Your promotions still appear in search, ranked by relevance to the search and the user — rating, reviews, distance and discount. Paid options only add a labelled slot on top, for the period you pay for.</>, <><b>ไม่ซื้อโฆษณาก็ได้</b> — โปรโมชั่นของคุณยังแสดงในผลการค้นหา โดยจัดอันดับตามความเกี่ยวข้องกับคำค้นและผู้ใช้ (คะแนน รีวิว ระยะทาง ส่วนลด) ตัวเลือกที่ต้องจ่ายเงินเพียงเพิ่มตำแหน่งที่มีป้ายกำกับด้านบน ตามระยะเวลาที่ซื้อเท่านั้น</>)}</div>
       </div>
       <Card title={t('Your campaigns', 'แคมเปญของคุณ')} className="mt-6">
         {campaigns.length === 0 ? <p className="text-sm text-sub">{t('No campaigns yet.', 'ยังไม่มีแคมเปญ')}</p> : (
@@ -389,23 +397,23 @@ export function Advertising() {
             {campaigns.map(cp => (
               <div key={cp.id} className="flex flex-wrap items-center gap-3 py-3 text-sm">
                 <Megaphone className="size-5 text-amber-600" />
-                <div className="flex-1"><div className="font-bold">{promoById(cp.promoId)?.title}</div><div className="text-sub">{t(`${cp.pkg} · within ${cp.area} km · ${cp.days} days from ${fmtDate(cp.start)}`, `${cp.pkg} · ภายใน ${cp.area} กม. · ${cp.days} วัน เริ่ม ${fmtDate(cp.start)}`)}</div></div>
-                <b>{baht(cp.budget)}</b><StatusBadge status={cp.status} />
+                <div className="flex-1"><div className="font-bold">{promoById(cp.promoId)?.title}</div><div className="text-sub">{t(`${cp.pkg} · within ${cp.area} km · ${fmtDate(cp.start)} – ${fmtDate(campaignEnd(cp))}`, `${cp.pkg} · ภายใน ${cp.area} กม. · ${fmtDate(cp.start)} – ${fmtDate(campaignEnd(cp))}`)}</div></div>
+                <b>{cp.pkg === 'CPC' ? t(`${baht(CPC)}/click`, `${baht(CPC)}/คลิก`) : baht(cp.budget)}</b><StatusBadge status={isLive(cp) ? 'Running' : 'Expired'} />
               </div>
             ))}
           </div>
         )}
       </Card>
-      <PitchNote className="mt-6" title={t('Pitch: advertising revenue', 'นำเสนอ: รายได้จากโฆษณา')}>{t(<>Ad packages at <b>฿2,000/week</b> and <b>฿6,000/month</b> come straight from our business model. Clinics self-serve in under a minute — no sales team needed.</>, <>แพ็กเกจโฆษณา <b>฿2,000/สัปดาห์</b> และ <b>฿6,000/เดือน</b> มาจากโมเดลธุรกิจโดยตรง คลินิกซื้อเองได้ในไม่ถึงนาที — ไม่ต้องมีทีมขาย</>)}</PitchNote>
+      <PitchNote className="mt-6" title={t('Pitch: advertising revenue', 'นำเสนอ: รายได้จากโฆษณา')}>{t(<>Optional, pay-once or pay-per-click: <b>฿2,000/week</b>, <b>฿6,000/month</b> or <b>{baht(CPC)}/click</b>. A week bought = a week on top, then the promo ranks like everyone else. Clinics self-serve in under a minute.</>, <>เป็นทางเลือก จ่ายครั้งเดียวหรือจ่ายตามคลิก: <b>฿2,000/สัปดาห์</b>, <b>฿6,000/เดือน</b> หรือ <b>{baht(CPC)}/คลิก</b> ซื้อ 1 สัปดาห์ก็อยู่อันดับต้น 1 สัปดาห์ หลังจากนั้นจัดอันดับเหมือนโปรอื่น ๆ คลินิกซื้อเองได้ในไม่ถึงนาที</>)}</PitchNote>
 
       <Modal open={!!pkg} onClose={() => setPkg(null)} title={`${t('New campaign', 'แคมเปญใหม่')} · ${pkg}`} wide
-        footer={<Button size="lg" className="w-full" onClick={launch} disabled={!promo}><Rocket className="size-5" />{t('Launch campaign', 'เริ่มแคมเปญ')} · {baht(budget)}</Button>}>
+        footer={<Button size="lg" className="w-full" onClick={launch} disabled={!promo}><Rocket className="size-5" />{t('Launch campaign', 'เริ่มแคมเปญ')} · {selected?.cpc && '~'}{baht(budget)}</Button>}>
         <div className="space-y-5">
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label={t('Promotion', 'โปรโมชั่น')}><select className={inputCls} value={c.promoId} onChange={e => setC({ ...c, promoId: e.target.value })}>{active.map(p => <option key={p.id} value={p.id}>{p.title}</option>)}</select></Field>
             <Field label={t('Target Area', 'พื้นที่เป้าหมาย')}><select className={inputCls} value={c.area} onChange={e => setC({ ...c, area: +e.target.value })}>{[1, 5, 10].map(k => <option key={k} value={k}>{t(`Within ${k} km`, `ภายใน ${k} กม.`)}</option>)}</select></Field>
             <Field label={t('Duration', 'ระยะเวลา')}><select className={inputCls} value={c.days} onChange={e => setC({ ...c, days: +e.target.value })}>{[7, 14, 30].map(d => <option key={d} value={d}>{t(`${d} Days`, `${d} วัน`)}</option>)}</select></Field>
-            <Field label={t('Budget', 'งบประมาณ')} hint={selected && `${baht(selected.price)} × ${units} ${t(...selected.per)}`}><div className={cx(inputCls, 'flex items-center font-bold')}>{baht(budget)}</div></Field>
+            <Field label={selected?.cpc ? t('Estimated cost', 'ค่าใช้จ่ายโดยประมาณ') : t('Budget', 'งบประมาณ')} hint={selected && (selected.cpc ? t(`~${est.clicks} clicks × ${baht(CPC)} · billed on actual clicks`, `~${est.clicks} คลิก × ${baht(CPC)} · เรียกเก็บตามคลิกจริง`) : `${baht(selected.price)} × ${units} ${t(...selected.per)}`)}><div className={cx(inputCls, 'flex items-center font-bold')}>{baht(budget)}</div></Field>
           </div>
           <div className="grid grid-cols-3 gap-2 text-center">
             {[[t('Estimated Reach', 'การเข้าถึงโดยประมาณ'), est.reach, Users], [t('Estimated Clicks', 'คลิกโดยประมาณ'), est.clicks, MousePointerClick], [t('Est. Bookings', 'การจองโดยประมาณ'), est.bookings, CalendarCheck]].map(([l, v, Icon]) => (

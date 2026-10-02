@@ -1,7 +1,21 @@
 export const baht = n => '฿' + Math.round(n).toLocaleString('en-US')
 export const discountPct = (original, price) => Math.round(((original - price) / original) * 100)
 export const DEPOSIT = 500
-export const COMMISSION = 0.08
+export const COMMISSION = 0.08 // required: every booking
+export const SUBSCRIPTION = 399 // required: ฿/clinic/month
+export const CPC = 5 // optional: ฿ per click while a CPC campaign runs
+
+export const today = () => new Date().toISOString().slice(0, 10)
+const addDays = (iso, n) => new Date(Date.parse(iso + 'T00:00:00Z') + n * 864e5).toISOString().slice(0, 10)
+
+// Ad packages and CPC only lift a promo while the campaign runs (start + days).
+// After that it ranks like any unpaid promo — by relevance only.
+export const campaignEnd = c => addDays(c.start, c.days)
+export const isLive = (c, now = today()) => c.start <= now && now < campaignEnd(c)
+export const withSponsor = (promos, campaigns, now = today()) => {
+  const live = new Set(campaigns.filter(c => isLive(c, now)).map(c => c.promoId))
+  return promos.map(p => ({ ...p, sponsored: live.has(p.id) }))
+}
 
 // Set by the store when the language changes; th-TH renders Buddhist-era years (พ.ศ.).
 let locale = 'th-TH'

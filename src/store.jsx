@@ -1,8 +1,8 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import * as mock from './data/mock'
-import { DEPOSIT, setLocale } from './utils/logic'
+import { DEPOSIT, setLocale, withSponsor } from './utils/logic'
 
-const KEY = 'profind-demo-v2' // bumped when the seed shape changes
+const KEY = 'profind-demo-v3' // bumped when the seed shape changes
 const seed = () => ({
   role: 'user',
   lang: 'th',
@@ -14,7 +14,7 @@ const seed = () => ({
   applications: mock.applications,
   myApplication: null,
   favorites: { clinics: ['c5'], promos: ['p10', 'p17'] },
-  campaigns: [{ id: 'cp1', promoId: 'p1', pkg: 'Sponsored Listing', area: 5, days: 7, budget: 2000, start: '2026-09-24', status: 'Running' }],
+  campaigns: mock.campaigns,
   chats: {},
   bookingSeq: 128,
 })
@@ -40,7 +40,9 @@ export function StoreProvider({ children }) {
   const api = useMemo(() => {
     const set = fn => setS(prev => ({ ...prev, ...fn(prev) }))
     const clinicById = id => mock.clinics.find(c => c.id === id)
-    const promoById = id => s.promotions.find(p => p.id === id)
+    // `sponsored` is derived from live campaigns, never stored, so it lapses when the campaign ends.
+    const promotions = withSponsor(s.promotions, s.campaigns)
+    const promoById = id => promotions.find(p => p.id === id)
     const withClinic = p => p && { ...p, clinic: clinicById(p.clinicId) }
     const reviewsFor = cid => s.reviews.filter(r => r.clinicId === cid)
     const clinicStats = c => {
@@ -53,6 +55,7 @@ export function StoreProvider({ children }) {
     const th = s.lang === 'th'
     return {
       ...s,
+      promotions,
       // i18n helpers: t('English', 'ไทย'); pick({ en, th } | string); tl(enumValue) → Thai label
       t: (en, thText) => (th ? thText ?? en : en),
       pick: v => (v == null || typeof v !== 'object' ? v : Array.isArray(v) ? v.map(x => (typeof x === 'object' ? x[s.lang] ?? x.en : x)) : v[s.lang] ?? v.en),
@@ -65,7 +68,7 @@ export function StoreProvider({ children }) {
       withClinic,
       reviewsFor,
       // Public listings: active promos only.
-      listings: s.promotions.filter(p => p.status === 'Active').map(p => ({ ...p, clinic: clinicStats(clinicById(p.clinicId)) })),
+      listings: promotions.filter(p => p.status === 'Active').map(p => ({ ...p, clinic: clinicStats(clinicById(p.clinicId)) })),
       toastMsg,
       toast: msg => { setToast(msg); setTimeout(() => setToast(t => (t === msg ? null : t)), 2600) },
 
@@ -104,8 +107,7 @@ export function StoreProvider({ children }) {
       deletePromo: id => set(p => ({ promotions: p.promotions.filter(x => x.id !== id) })),
 
       launchCampaign: c => set(p => ({
-        campaigns: [{ ...c, id: `cp${Date.now()}`, status: 'Running', start: new Date().toISOString().slice(0, 10) }, ...p.campaigns],
-        promotions: p.promotions.map(x => (x.id === c.promoId ? { ...x, sponsored: true } : x)),
+        campaigns: [{ ...c, id: `cp${Date.now()}`, start: new Date().toISOString().slice(0, 10) }, ...p.campaigns],
       })),
 
       submitApplication: app => {
