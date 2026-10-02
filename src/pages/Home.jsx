@@ -112,7 +112,7 @@ export default function Home() {
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3 p-8 md:w-96 md:p-10">
-            {[[TrendingUp, '3.2×', t('more enquiries', 'ยอดสอบถามเพิ่มขึ้น')], [CalendarCheck, '128', t('bookings / mo', 'การจอง / เดือน')], [Megaphone, '฿2,000', t('Sponsored / week', 'Sponsored / สัปดาห์')], [Star, '4.8', t('avg. partner rating', 'คะแนนเฉลี่ยพาร์ทเนอร์')]].map(([Icon, v, l]) => (
+            {[[TrendingUp, '3.2×', t('more enquiries', 'ยอดสอบถามเพิ่มขึ้น')], [CalendarCheck, '128', t('bookings / mo', 'การจอง / เดือน')], [Megaphone, '฿2,500', t('Sponsored / week', 'Sponsored / สัปดาห์')], [Star, '4.8', t('avg. partner rating', 'คะแนนเฉลี่ยพาร์ทเนอร์')]].map(([Icon, v, l]) => (
               <div key={v} className="rounded-2xl bg-white/5 p-4 ring-1 ring-white/10"><Icon className="size-5 text-brand-300" /><div className="mt-2 text-xl font-extrabold">{v}</div><div className="text-xs text-white/60">{l}</div></div>
             ))}
           </div>

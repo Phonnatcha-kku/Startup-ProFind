@@ -88,8 +88,8 @@ export default function Search() {
                     <GroupHeader name={name} count={items.length} />
                     {name === 'Sponsored' && (
                       <PitchNote title={t('Pitch: Sponsored placement = revenue', 'นำเสนอ: ตำแหน่งโปรโมต = รายได้')} className="mb-3">
-                        {t(<>Optional for clinics: an ad package (<b>฿2,000/week</b>) or <b>CPC ฿5/click</b> puts a promo here only for the period paid. It's always labelled <b>Sponsored</b> and capped at 2 slots — the organic ranking below is untouched, so users keep trusting results.</>,
-                          <>เป็นทางเลือกของคลินิก: ซื้อแพ็กเกจโฆษณา (<b>฿2,000/สัปดาห์</b>) หรือ <b>CPC คลิกละ ฿5</b> เพื่อแสดงตรงนี้เฉพาะช่วงเวลาที่จ่าย โดยมีป้าย <b>โปรโมต</b> เสมอและจำกัดไม่เกิน 2 ตำแหน่ง — อันดับปกติด้านล่างไม่ถูกแทรกแซง ผู้ใช้จึงยังเชื่อถือผลการค้นหาได้</>)}
+                        {t(<>Optional for clinics: an ad package (<b>฿2,500/week</b>) or <b>CPC ฿5/click</b> puts a promo here only for the period paid. It's always labelled <b>Sponsored</b> and capped at 2 slots — the organic ranking below is untouched, so users keep trusting results.</>,
+                          <>เป็นทางเลือกของคลินิก: ซื้อแพ็กเกจโฆษณา (<b>฿2,500/สัปดาห์</b>) หรือ <b>CPC คลิกละ ฿5</b> เพื่อแสดงตรงนี้เฉพาะช่วงเวลาที่จ่าย โดยมีป้าย <b>โปรโมต</b> เสมอและจำกัดไม่เกิน 2 ตำแหน่ง — อันดับปกติด้านล่างไม่ถูกแทรกแซง ผู้ใช้จึงยังเชื่อถือผลการค้นหาได้</>)}
                       </PitchNote>
                     )}
                     <div className="space-y-4">{items.map(i => <ClinicCard key={i.id} item={i} onChat={setChat} />)}</div>

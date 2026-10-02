@@ -353,7 +353,7 @@ export function Analytics() {
 }
 
 const PACKAGES = [
-  { id: 'Sponsored Listing', price: 2000, per: ['week', 'สัปดาห์'], icon: Megaphone, unitDays: 7,
+  { id: 'Sponsored Listing', price: 2500, per: ['week', 'สัปดาห์'], icon: Megaphone, unitDays: 7,
     perks: [['Top of search results for your treatment', 'แสดงบนสุดของผลการค้นหาหัตถการของคุณ'], ['“Sponsored” label — max 2 slots per search', 'มีป้าย “โปรโมต” — สูงสุด 2 ตำแหน่งต่อการค้นหา'], ['Highlighted map pin', 'หมุดบนแผนที่แบบเด่น']] },
   { id: 'Featured Clinic', price: 6000, per: ['month', 'เดือน'], icon: Crown, unitDays: 30, best: true,
     perks: [['Homepage “Clinics near you” feature', 'แสดงในหัวข้อ “คลินิกใกล้คุณ” บนหน้าแรก'], ['Sponsored Listing included', 'รวม Sponsored Listing'], ['Priority in push notifications', 'ได้รับความสำคัญในการแจ้งเตือน']] },
@@ -404,7 +404,7 @@ export function Advertising() {
           </div>
         )}
       </Card>
-      <PitchNote className="mt-6" title={t('Pitch: advertising revenue', 'นำเสนอ: รายได้จากโฆษณา')}>{t(<>Optional, pay-once or pay-per-click: <b>฿2,000/week</b>, <b>฿6,000/month</b> or <b>{baht(CPC)}/click</b>. A week bought = a week on top, then the promo ranks like everyone else. Clinics self-serve in under a minute.</>, <>เป็นทางเลือก จ่ายครั้งเดียวหรือจ่ายตามคลิก: <b>฿2,000/สัปดาห์</b>, <b>฿6,000/เดือน</b> หรือ <b>{baht(CPC)}/คลิก</b> ซื้อ 1 สัปดาห์ก็อยู่อันดับต้น 1 สัปดาห์ หลังจากนั้นจัดอันดับเหมือนโปรอื่น ๆ คลินิกซื้อเองได้ในไม่ถึงนาที</>)}</PitchNote>
+      <PitchNote className="mt-6" title={t('Pitch: advertising revenue', 'นำเสนอ: รายได้จากโฆษณา')}>{t(<>Optional, pay-once or pay-per-click: <b>฿2,500/week</b>, <b>฿6,000/month</b> or <b>{baht(CPC)}/click</b>. A week bought = a week on top, then the promo ranks like everyone else. Clinics self-serve in under a minute.</>, <>เป็นทางเลือก จ่ายครั้งเดียวหรือจ่ายตามคลิก: <b>฿2,500/สัปดาห์</b>, <b>฿6,000/เดือน</b> หรือ <b>{baht(CPC)}/คลิก</b> ซื้อ 1 สัปดาห์ก็อยู่อันดับต้น 1 สัปดาห์ หลังจากนั้นจัดอันดับเหมือนโปรอื่น ๆ คลินิกซื้อเองได้ในไม่ถึงนาที</>)}</PitchNote>
 
       <Modal open={!!pkg} onClose={() => setPkg(null)} title={`${t('New campaign', 'แคมเปญใหม่')} · ${pkg}`} wide
         footer={<Button size="lg" className="w-full" onClick={launch} disabled={!promo}><Rocket className="size-5" />{t('Launch campaign', 'เริ่มแคมเปญ')} · {selected?.cpc && '~'}{baht(budget)}</Button>}>

@@ -210,7 +210,7 @@ export const platformTrend = ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'].map((m, 
 // Monthly ProFind revenue by source (฿), from the pitch deck's revenue table.
 export const revenueMix = [
   { name: { en: 'Commission', th: 'ค่าคอมมิชชั่น' }, value: 195000, note: { en: 'Required · 8% of ฿2,437,500 booking GMV', th: 'บังคับ · 8% ของยอดจอง ฿2,437,500' } },
-  { name: { en: 'Ad packages', th: 'แพ็กเกจโฆษณา' }, value: 24000, note: { en: 'Optional · Sponsored ฿2,000/wk × 3 · Featured ฿6,000/mo × 3', th: 'ทางเลือก · Sponsored ฿2,000/สัปดาห์ × 3 · Featured ฿6,000/เดือน × 3' } },
+  { name: { en: 'Ad packages', th: 'แพ็กเกจโฆษณา' }, value: 25500, note: { en: 'Optional · Sponsored ฿2,500/wk × 3 · Featured ฿6,000/mo × 3', th: 'ทางเลือก · Sponsored ฿2,500/สัปดาห์ × 3 · Featured ฿6,000/เดือน × 3' } },
   { name: { en: 'CPC', th: 'ค่าคลิก (CPC)' }, value: 15000, note: { en: 'Optional · 3,000 clicks × ฿5', th: 'ทางเลือก · 3,000 คลิก × ฿5' } },
   { name: { en: 'Subscription', th: 'ค่าสมาชิกรายเดือน' }, value: 11970, note: { en: 'Required · 30 clinics × ฿399/mo', th: 'บังคับ · 30 คลินิก × ฿399/เดือน' } },
 ]
@@ -218,7 +218,7 @@ export const revenueMix = [
 // Seed ad campaigns, dated relative to today so the demo always has one running and one finished.
 const daysAgo = n => new Date(Date.now() - n * 864e5).toISOString().slice(0, 10)
 export const campaigns = [
-  { id: 'cp1', promoId: 'p1', pkg: 'Sponsored Listing', area: 5, days: 7, budget: 2000, start: daysAgo(2) },
+  { id: 'cp1', promoId: 'p1', pkg: 'Sponsored Listing', area: 5, days: 7, budget: 2500, start: daysAgo(2) },
   { id: 'cp2', promoId: 'p4', pkg: 'CPC', area: 5, days: 14, budget: 1500, start: daysAgo(3) },
-  { id: 'cp0', promoId: 'p2', pkg: 'Sponsored Listing', area: 5, days: 7, budget: 2000, start: daysAgo(20) },
+  { id: 'cp0', promoId: 'p2', pkg: 'Sponsored Listing', area: 5, days: 7, budget: 2500, start: daysAgo(20) },
 ]
